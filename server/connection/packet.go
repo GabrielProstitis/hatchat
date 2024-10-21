@@ -105,7 +105,12 @@ func getRawLen(ls ...int) int {
 func (pkt *Packet) convertToRawData() ([]byte, error) {
 	switch pkt.Type {
 	case PacketIn:
-		return nil, fmt.Errorf("cannot send PacketIn packets")
+		b := make([]byte, getRawLen(pgTypeOff.len, pgLenOff.len, piReceiverId.len, len(pkt.Contents)))
+		addRawMember(b, pgTypeOff, uint64(pkt.Type))
+		addRawMember(b, pgLenOff, uint64(len(b)))
+		addRawMember(b, piReceiverId, uint64(pkt.ReceiverId))
+		addRawMember(b, piContents, pkt.Contents)
+		return b, nil
 	case PacketBroadcast:
 		return nil, fmt.Errorf("cannot send PacketBroadcast packets")
 	case PacketOut:
